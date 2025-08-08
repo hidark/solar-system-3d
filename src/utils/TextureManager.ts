@@ -5,6 +5,8 @@ class TextureManager {
   private textureCache: Map<string, THREE.Texture>
   private loadingManager: THREE.LoadingManager
   private loadedCount: number = 0
+  private totalCount: number = 0
+  private loadingPromises: Map<string, Promise<THREE.Texture>> = new Map()
   
   constructor(onProgress?: (progress: number) => void) {
     this.textureCache = new Map()
@@ -37,8 +39,16 @@ class TextureManager {
     if (this.textureCache.has(path)) {
       return Promise.resolve(this.textureCache.get(path)!)
     }
+    
+    // 检查是否已经在加载中
+    if (this.loadingPromises.has(path)) {
+      return this.loadingPromises.get(path)!
+    }
 
-    return new Promise((resolve, reject) => {
+    // 增加总计数
+    this.totalCount++
+
+    const loadPromise = new Promise<THREE.Texture>((resolve, reject) => {
       this.textureLoader.load(
         path,
         (texture) => {
@@ -51,18 +61,25 @@ class TextureManager {
           // 缓存纹理
           this.textureCache.set(path, texture)
           this.loadedCount++
+          this.loadingPromises.delete(path)
+          console.log(`✓ Loaded texture: ${path} (${this.loadedCount}/${this.totalCount})`)
           resolve(texture)
         },
         undefined,
         (error) => {
-          console.error(`Failed to load texture: ${path}`, error)
+          console.warn(`Failed to load texture: ${path}, using fallback`)
           // 返回默认颜色纹理
           const defaultTexture = this.createDefaultTexture()
+          this.textureCache.set(path, defaultTexture)
           this.loadedCount++
+          this.loadingPromises.delete(path)
           resolve(defaultTexture)
         }
       )
     })
+    
+    this.loadingPromises.set(path, loadPromise)
+    return loadPromise
   }
 
   /**
@@ -223,6 +240,21 @@ class TextureManager {
   getLoadedCount(): number {
     return this.loadedCount
   }
+  
+  /**
+   * 获取总纹理数量
+   */
+  getTotalCount(): number {
+    return this.totalCount
+  }
+  
+  /**
+   * 获取加载进度百分比
+   */
+  getLoadingProgress(): number {
+    if (this.totalCount === 0) return 0
+    return Math.min(100, (this.loadedCount / this.totalCount) * 100)
+  }
 
   /**
    * 清理缓存
@@ -232,7 +264,9 @@ class TextureManager {
       texture.dispose()
     })
     this.textureCache.clear()
+    this.loadingPromises.clear()
     this.loadedCount = 0
+    this.totalCount = 0
   }
 }
 

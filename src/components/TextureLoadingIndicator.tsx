@@ -2,26 +2,41 @@ import { useEffect, useState } from 'react'
 import { textureManager } from '../utils/TextureManager'
 
 const TextureLoadingIndicator = () => {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
   
   useEffect(() => {
+    let interval: NodeJS.Timeout
+    
     // Monitor texture loading
     const checkTextureStatus = () => {
-      const totalTextures = 14 // Total number of textures we're loading
-      const loadedTextures = textureManager.getLoadedCount()
-      const progressPercent = (loadedTextures / totalTextures) * 100
+      const progressPercent = textureManager.getLoadingProgress()
+      const totalCount = textureManager.getTotalCount()
+      const loadedCount = textureManager.getLoadedCount()
       
-      setProgress(progressPercent)
-      
-      if (progressPercent >= 100) {
-        setTimeout(() => setLoading(false), 500)
+      // Only show if we're actually loading textures
+      if (totalCount > 0 && loadedCount < totalCount) {
+        setLoading(true)
+        setProgress(progressPercent)
+      } else if (loadedCount >= totalCount && totalCount > 0) {
+        setProgress(100)
+        // Hide after a short delay
+        setTimeout(() => {
+          setLoading(false)
+          if (interval) clearInterval(interval)
+        }, 1000)
       }
     }
     
-    const interval = setInterval(checkTextureStatus, 100)
+    // Start checking after a short delay to allow initial texture requests
+    setTimeout(() => {
+      checkTextureStatus()
+      interval = setInterval(checkTextureStatus, 200)
+    }, 100)
     
-    return () => clearInterval(interval)
+    return () => {
+      if (interval) clearInterval(interval)
+    }
   }, [])
   
   if (!loading) return null

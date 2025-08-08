@@ -1,0 +1,64 @@
+import { Suspense, useState } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { OrbitControls, Stars, Preload } from '@react-three/drei'
+import { Leva } from 'leva'
+import Scene from './components/Scene'
+import LoadingScreen from './components/LoadingScreen'
+import ControlPanel from './components/ControlPanel'
+import InfoPanel from './components/InfoPanel'
+import useStore from './store/useStore'
+
+function App() {
+  const [loading, setLoading] = useState(true)
+  const selectedPlanet = useStore((state) => state.selectedPlanet)
+
+  return (
+    <>
+      {loading && <LoadingScreen />}
+      
+      <Canvas
+        camera={{ position: [0, 30, 50], fov: 60 }}
+        gl={{ antialias: true, alpha: false }}
+        onCreated={() => setLoading(false)}
+      >
+        <Suspense fallback={null}>
+          <Scene />
+          <Stars 
+            radius={300} 
+            depth={60} 
+            count={5000} 
+            factor={4} 
+            saturation={0} 
+            fade 
+            speed={1}
+          />
+          <OrbitControls 
+            enablePan={true}
+            enableZoom={true}
+            enableRotate={true}
+            zoomSpeed={0.6}
+            panSpeed={0.5}
+            rotateSpeed={0.4}
+            minDistance={5}
+            maxDistance={200}
+          />
+          <Preload all />
+        </Suspense>
+      </Canvas>
+
+      <ControlPanel />
+      {selectedPlanet && <InfoPanel planet={selectedPlanet} />}
+      
+      <Leva 
+        collapsed 
+        hidden={false}
+        theme={{
+          sizes: { rootWidth: '280px', controlWidth: '120px' },
+          space: { md: '10px' },
+        }}
+      />
+    </>
+  )
+}
+
+export default App

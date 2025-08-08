@@ -1,6 +1,6 @@
-import { useRef, useMemo, useState, useEffect } from 'react'
-import { useFrame, useLoader } from '@react-three/fiber'
-import { Sphere, Ring, Text, Trail } from '@react-three/drei'
+import { useRef, useMemo, useState } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { Sphere, Ring, Text } from '@react-three/drei'
 import * as THREE from 'three'
 import { PlanetData } from '../../data/planetsData'
 import useStore from '../../store/useStore'
@@ -245,22 +245,13 @@ const PlanetEnhanced: React.FC<PlanetEnhancedProps> = ({
             color="white"
             anchorX="center"
             anchorY="middle"
-            font="/fonts/inter-v12-latin-regular.woff"
           >
             {planetData.nameZh}
             {isSelected && `\n${planetData.name}`}
           </Text>
         )}
 
-        {/* 轨迹 */}
-        {showTrail && (
-          <Trail
-            width={1}
-            length={20}
-            color={planetData.color}
-            attenuation={(width) => width}
-          />
-        )}
+        {/* 轨迹 - 暂时禁用 */}
       </group>
     </>
   )

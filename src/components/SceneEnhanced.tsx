@@ -1,6 +1,6 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { folder, useControls } from 'leva'
+import { useControls } from 'leva'
 import Sun from './celestial/Sun'
 import PlanetEnhanced from './celestial/PlanetEnhanced'
 import { planetsData, scaleConfig } from '../data/planetsData'

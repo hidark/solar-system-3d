@@ -49,7 +49,8 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ planet }) => {
     }
   }
 
-  const data = planetData[planet.name] || {}
+  const data = planet.physicalData || planetData[planet.name] || {}
+  const legacyData = planetData[planet.name] || {}
 
   return (
     <div className="info-panel">
@@ -77,27 +78,37 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ planet }) => {
       </div>
       <div className="info-item">
         <span className="info-label">直径</span>
-        <span>{data.diameter}</span>
+        <span>{data.diameter || legacyData.diameter} km</span>
       </div>
       <div className="info-item">
         <span className="info-label">质量</span>
-        <span>{data.mass}</span>
+        <span>{data.mass || legacyData.mass} kg</span>
       </div>
       <div className="info-item">
-        <span className="info-label">自转周期</span>
-        <span>{data.dayLength}</span>
+        <span className="info-label">密度</span>
+        <span>{data.density} g/cm³</span>
       </div>
       <div className="info-item">
-        <span className="info-label">公转周期</span>
-        <span>{data.yearLength}</span>
+        <span className="info-label">重力</span>
+        <span>{data.gravity} m/s²</span>
+      </div>
+      <div className="info-item">
+        <span className="info-label">逃逸速度</span>
+        <span>{data.escapeVelocity} km/s</span>
       </div>
       <div className="info-item">
         <span className="info-label">表面温度</span>
-        <span>{data.temperature}</span>
+        <span>{data.temperature || legacyData.temperature} °C</span>
       </div>
+      {data.atmosphere && (
+        <div className="info-item">
+          <span className="info-label">大气成分</span>
+          <span style={{ fontSize: '12px' }}>{data.atmosphere}</span>
+        </div>
+      )}
       <div className="info-item">
-        <span className="info-label">卫星数量</span>
-        <span>{data.moons}</span>
+        <span className="info-label">轨道距离</span>
+        <span>{planet.distance.toFixed(2)} AU</span>
       </div>
     </div>
   )

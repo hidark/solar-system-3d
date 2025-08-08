@@ -2,10 +2,11 @@ import { Suspense, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars, Preload } from '@react-three/drei'
 import { Leva } from 'leva'
-import Scene from './components/Scene'
+import SceneEnhanced from './components/SceneEnhanced'
 import LoadingScreen from './components/LoadingScreen'
 import ControlPanel from './components/ControlPanel'
 import InfoPanel from './components/InfoPanel'
+import SearchPanel from './components/SearchPanel'
 import useStore from './store/useStore'
 
 function App() {
@@ -22,7 +23,7 @@ function App() {
         onCreated={() => setLoading(false)}
       >
         <Suspense fallback={null}>
-          <Scene />
+          <SceneEnhanced />
           <Stars 
             radius={300} 
             depth={60} 
@@ -40,12 +41,13 @@ function App() {
             panSpeed={0.5}
             rotateSpeed={0.4}
             minDistance={5}
-            maxDistance={200}
+            maxDistance={300}
           />
           <Preload all />
         </Suspense>
       </Canvas>
 
+      <SearchPanel />
       <ControlPanel />
       {selectedPlanet && <InfoPanel planet={selectedPlanet} />}
       

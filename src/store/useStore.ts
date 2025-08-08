@@ -7,6 +7,15 @@ interface PlanetInfo {
   distance: number
   orbitSpeed: number
   color: string
+  physicalData?: {
+    mass: string
+    diameter: string
+    density: string
+    gravity: string
+    escapeVelocity: string
+    temperature: string
+    atmosphere?: string
+  }
 }
 
 interface StoreState {

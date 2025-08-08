@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useControls } from 'leva'
 import Sun from './celestial/Sun'
-import PlanetEnhanced from './celestial/PlanetEnhanced'
+import PlanetWithTexture from './celestial/PlanetWithTexture'
 import { planetsData, scaleConfig } from '../data/planetsData'
 import useStore from '../store/useStore'
 import * as THREE from 'three'
@@ -130,7 +130,7 @@ const SceneEnhanced = () => {
         const planetDataWithMoons = showMoons ? planet : { ...planet, moons: [] }
         
         return (
-          <PlanetEnhanced
+          <PlanetWithTexture
             key={planet.id}
             planetData={planetDataWithMoons}
             scaledDistance={scaledDistance}

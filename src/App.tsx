@@ -5,7 +5,7 @@ import { Leva } from 'leva'
 import SceneEnhanced from './components/SceneEnhanced'
 // import SceneDebug from './components/SceneDebug'
 import LoadingScreen from './components/LoadingScreen'
-import ControlPanel from './components/ControlPanel'
+import TimeControl from './components/TimeControl'
 import InfoPanel from './components/InfoPanel'
 import SearchPanel from './components/SearchPanel'
 import useStore from './store/useStore'
@@ -49,7 +49,7 @@ function App() {
       </Canvas>
 
       <SearchPanel />
-      <ControlPanel />
+      <TimeControl />
       {selectedPlanet && <InfoPanel planet={selectedPlanet} />}
       
       <Leva 

@@ -115,8 +115,9 @@ const SceneEnhanced = () => {
   return (
     <>
       {/* 环境光和太阳光 */}
-      <ambientLight intensity={0.03} />
-      <pointLight position={[0, 0, 0]} intensity={2} color="#FFF5E6" />
+      <ambientLight intensity={0.1} />
+      <pointLight position={[0, 0, 0]} intensity={3} color="#FFF5E6" />
+      <pointLight position={[0, 0, 0]} intensity={1} color="#FFE4B5" distance={200} decay={2} />
       
       {/* 太阳 */}
       <Sun />

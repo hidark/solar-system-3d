@@ -104,39 +104,114 @@ class TextureManager {
     color2: string,
     detail: number = 5
   ): THREE.Texture {
-    const size = 512
+    const size = 1024
     const canvas = document.createElement('canvas')
     canvas.width = size
     canvas.height = size
     
     const context = canvas.getContext('2d')!
     
-    // 创建渐变
-    const gradient = context.createLinearGradient(0, 0, size, size)
-    gradient.addColorStop(0, color1)
-    gradient.addColorStop(0.5, color2)
-    gradient.addColorStop(1, color1)
-    
-    context.fillStyle = gradient
+    // 创建渐变背景
+    const bgGradient = context.createLinearGradient(0, 0, 0, size)
+    bgGradient.addColorStop(0, this.lightenColor(color1, 20))
+    bgGradient.addColorStop(0.5, color1)
+    bgGradient.addColorStop(1, this.darkenColor(color1, 20))
+    context.fillStyle = bgGradient
     context.fillRect(0, 0, size, size)
     
-    // 添加噪声细节
-    for (let i = 0; i < detail * 1000; i++) {
+    // 创建横向条纹（类似木星、土星的云带）
+    const stripeCount = Math.floor(6 + detail * 2)
+    for (let i = 0; i < stripeCount; i++) {
+      const y = (i / stripeCount) * size + (Math.random() - 0.5) * 20
+      const height = 20 + Math.random() * 60
+      const opacity = 0.3 + Math.random() * 0.4
+      
+      const gradient = context.createLinearGradient(0, y - height/2, 0, y + height/2)
+      gradient.addColorStop(0, this.hexToRgba(color2, 0))
+      gradient.addColorStop(0.5, this.hexToRgba(color2, opacity))
+      gradient.addColorStop(1, this.hexToRgba(color2, 0))
+      
+      context.fillStyle = gradient
+      context.fillRect(0, y - height/2, size, height)
+    }
+    
+    // 添加细节噪声
+    for (let i = 0; i < detail * 200; i++) {
       const x = Math.random() * size
       const y = Math.random() * size
-      const radius = Math.random() * 2
-      const opacity = Math.random() * 0.1
+      const radius = Math.random() * 2 + 0.5
+      const opacity = Math.random() * 0.15
       
-      context.fillStyle = `rgba(255, 255, 255, ${opacity})`
+      const noiseGradient = context.createRadialGradient(x, y, 0, x, y, radius)
+      noiseGradient.addColorStop(0, `rgba(255, 255, 255, ${opacity})`)
+      noiseGradient.addColorStop(1, `rgba(255, 255, 255, 0)`)
+      
+      context.fillStyle = noiseGradient
       context.beginPath()
-      context.arc(x, y, radius, 0, Math.PI * 2)
+      context.arc(x, y, radius * 2, 0, Math.PI * 2)
       context.fill()
+    }
+    
+    // 添加特征斑点（类似木星大红斑）
+    if (detail > 5) {
+      const spotCount = Math.floor(1 + Math.random() * 2)
+      for (let i = 0; i < spotCount; i++) {
+        const spotX = size * (0.3 + Math.random() * 0.4)
+        const spotY = size * (0.3 + Math.random() * 0.4)
+        const spotRadius = 30 + Math.random() * 40
+        
+        const spotGradient = context.createRadialGradient(spotX, spotY, 0, spotX, spotY, spotRadius)
+        spotGradient.addColorStop(0, this.hexToRgba(this.darkenColor(color2, 30), 0.6))
+        spotGradient.addColorStop(0.7, this.hexToRgba(color2, 0.3))
+        spotGradient.addColorStop(1, this.hexToRgba(color2, 0))
+        
+        context.fillStyle = spotGradient
+        context.beginPath()
+        context.ellipse(spotX, spotY, spotRadius * 1.5, spotRadius, Math.random() * Math.PI, 0, Math.PI * 2)
+        context.fill()
+      }
     }
     
     const texture = new THREE.CanvasTexture(canvas)
     texture.needsUpdate = true
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
     
     return texture
+  }
+
+  /**
+   * 颜色辅助函数
+   */
+  private hexToRgba(hex: string, alpha: number): string {
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`
+  }
+
+  private lightenColor(hex: string, percent: number): string {
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    
+    const newR = Math.min(255, Math.floor(r + (255 - r) * (percent / 100)))
+    const newG = Math.min(255, Math.floor(g + (255 - g) * (percent / 100)))
+    const newB = Math.min(255, Math.floor(b + (255 - b) * (percent / 100)))
+    
+    return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`
+  }
+
+  private darkenColor(hex: string, percent: number): string {
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    
+    const newR = Math.max(0, Math.floor(r * (1 - percent / 100)))
+    const newG = Math.max(0, Math.floor(g * (1 - percent / 100)))
+    const newB = Math.max(0, Math.floor(b * (1 - percent / 100)))
+    
+    return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`
   }
 
   /**

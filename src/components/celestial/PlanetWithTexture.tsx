@@ -38,23 +38,72 @@ const PlanetWithTexture: React.FC<PlanetWithTextureProps> = ({
 
   // 加载纹理
   useEffect(() => {
-    // 使用程序化纹理作为默认
+    // 为不同行星生成不同风格的程序化纹理
+    let color1 = planetData.color
+    let color2 = planetData.color
+    let detail = 5
+    
+    switch (planetData.id) {
+      case 'mercury':
+        color1 = '#8C8C8C'
+        color2 = '#696969'
+        detail = 3
+        break
+      case 'venus':
+        color1 = '#FFC649'
+        color2 = '#FFB000'
+        detail = 4
+        break
+      case 'earth':
+        color1 = '#4A90E2'
+        color2 = '#2E7BC4'
+        detail = 8
+        break
+      case 'mars':
+        color1 = '#CD5C5C'
+        color2 = '#8B4513'
+        detail = 4
+        break
+      case 'jupiter':
+        color1 = '#DAA520'
+        color2 = '#8B7355'
+        detail = 10
+        break
+      case 'saturn':
+        color1 = '#F4E7D7'
+        color2 = '#DEB887'
+        detail = 8
+        break
+      case 'uranus':
+        color1 = '#4FD0E0'
+        color2 = '#40B0C0'
+        detail = 3
+        break
+      case 'neptune':
+        color1 = '#4B70DD'
+        color2 = '#3A5FCD'
+        detail = 4
+        break
+      case 'pluto':
+        color1 = '#9CA4AB'
+        color2 = '#7D8489'
+        detail = 2
+        break
+    }
+    
     const proceduralTexture = textureManager.createProceduralPlanetTexture(
-      planetData.color,
-      planetData.id === 'jupiter' ? '#8B7355' : 
-      planetData.id === 'saturn' ? '#F4E7D7' :
-      planetData.id === 'mars' ? '#8B4513' :
-      planetData.color,
-      planetData.id === 'earth' ? 10 : 5
+      color1,
+      color2,
+      detail
     )
     setTexture(proceduralTexture)
 
-    // 如果有纹理路径，尝试加载真实纹理
-    if (planetData.texture) {
-      textureManager.loadTexture(planetData.texture).then((loadedTexture) => {
-        setTexture(loadedTexture)
-      })
-    }
+    // 如果有纹理路径，尝试加载真实纹理（但目前我们使用程序化纹理）
+    // if (planetData.texture) {
+    //   textureManager.loadTexture(planetData.texture).then((loadedTexture) => {
+    //     setTexture(loadedTexture)
+    //   })
+    // }
   }, [planetData])
 
   // 计算椭圆轨道
@@ -244,23 +293,18 @@ const PlanetWithTexture: React.FC<PlanetWithTextureProps> = ({
             document.body.style.cursor = 'default'
           }}
         >
-          {texture ? (
-            <meshStandardMaterial
-              map={texture}
-              emissive={planetData.id === 'sun' ? planetData.color : '#000000'}
-              emissiveIntensity={planetData.id === 'sun' ? 1 : 0}
-              roughness={0.8}
-              metalness={0.2}
-            />
-          ) : (
-            <meshStandardMaterial
-              color={planetData.color}
-              emissive={planetData.color}
-              emissiveIntensity={isSelected ? 0.3 : hovered ? 0.2 : 0.05}
-              roughness={0.8}
-              metalness={0.2}
-            />
-          )}
+          <meshStandardMaterial
+            color={texture ? '#ffffff' : planetData.color}
+            map={texture || undefined}
+            emissive={planetData.color}
+            emissiveIntensity={
+              planetData.id === 'sun' ? 1 : 
+              isSelected ? 0.2 : 
+              hovered ? 0.15 : 0.08
+            }
+            roughness={planetData.id === 'earth' ? 0.7 : 0.85}
+            metalness={planetData.id === 'earth' ? 0.1 : 0.05}
+          />
         </Sphere>
 
         {/* 大气层效果 */}

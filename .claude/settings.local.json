@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh auth:*)",
+      "Bash(gh repo create:*)",
+      "Bash(explorer:*)",
+      "Bash(dir:*)",
+      "Bash(attrib:*)",
+      "Bash(mkdir:*)"
+    ],
+    "deny": []
+  }
+}

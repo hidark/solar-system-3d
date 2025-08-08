@@ -6,7 +6,11 @@
       "Bash(explorer:*)",
       "Bash(dir:*)",
       "Bash(attrib:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(node:*)",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }

@@ -72,22 +72,28 @@ const PlanetWithTexture: React.FC<PlanetWithTextureProps> = ({
   useEffect(() => {
     // 如果有真实纹理路径，加载真实纹理
     if (planetData.texture) {
+      console.log(`Loading texture for ${planetData.name}: ${planetData.texture}`)
       textureManager.loadTexture(planetData.texture).then((loadedTexture) => {
+        console.log(`Texture loaded for ${planetData.name}`, loadedTexture)
         setTexture(loadedTexture)
-      }).catch(() => {
+      }).catch((error) => {
+        console.error(`Failed to load texture for ${planetData.name}:`, error)
         // 如果加载失败，使用程序化纹理作为后备
         createProceduralTexture()
       })
     } else {
       // 没有纹理路径，使用程序化纹理
+      console.log(`No texture path for ${planetData.name}, using procedural texture`)
       createProceduralTexture()
     }
     
     // 加载法线贴图和高光贴图（地球）
     if (planetData.normalMap) {
+      console.log(`Loading normal map for ${planetData.name}: ${planetData.normalMap}`)
       textureManager.loadTexture(planetData.normalMap).then(setNormalMap)
     }
     if (planetData.specularMap) {
+      console.log(`Loading specular map for ${planetData.name}: ${planetData.specularMap}`)
       textureManager.loadTexture(planetData.specularMap).then(setSpecularMap)
     }
     
@@ -341,19 +347,27 @@ const PlanetWithTexture: React.FC<PlanetWithTextureProps> = ({
           }}
         >
           <meshStandardMaterial
-            color={texture ? '#ffffff' : planetData.color}
+            color={planetData.color}
             map={texture || undefined}
             normalMap={normalMap || undefined}
             metalnessMap={specularMap || undefined}
             emissive={planetData.color}
             emissiveIntensity={
-              planetData.id === 'sun' ? 1 : 
-              isSelected ? 0.2 : 
-              hovered ? 0.15 : 0.08
+              planetData.id === 'sun' ? 1 :
+              isSelected ? 0.08 : 
+              hovered ? 0.05 : 0.02
             }
-            roughness={planetData.id === 'earth' ? 0.5 : 0.85}
-            metalness={planetData.id === 'earth' ? 0.3 : 0.05}
-            normalScale={new THREE.Vector2(2, 2)}
+            roughness={
+              planetData.id === 'earth' ? 0.7 :
+              planetData.id === 'mars' ? 0.9 :
+              planetData.id === 'jupiter' ? 0.6 :
+              0.8
+            }
+            metalness={
+              planetData.id === 'earth' ? 0.1 :
+              planetData.id === 'jupiter' ? 0.2 :
+              0.05
+            }
           />
         </Sphere>
 

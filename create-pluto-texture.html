@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Pluto Texture</title>
+</head>
+<body>
+    <canvas id="canvas" width="1024" height="512"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Create a gray-brown pluto-like texture
+        const gradient = ctx.createLinearGradient(0, 0, 0, 512);
+        gradient.addColorStop(0, '#C4B5A0');
+        gradient.addColorStop(0.5, '#9B8873');
+        gradient.addColorStop(1, '#7A6A5A');
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 1024, 512);
+        
+        // Add some surface features
+        for (let i = 0; i < 50; i++) {
+            const x = Math.random() * 1024;
+            const y = Math.random() * 512;
+            const radius = Math.random() * 20 + 5;
+            
+            const spotGradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+            spotGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+            spotGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            
+            ctx.fillStyle = spotGradient;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Add darker regions
+        for (let i = 0; i < 30; i++) {
+            const x = Math.random() * 1024;
+            const y = Math.random() * 512;
+            const radius = Math.random() * 30 + 10;
+            
+            const darkGradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+            darkGradient.addColorStop(0, 'rgba(0, 0, 0, 0.2)');
+            darkGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            ctx.fillStyle = darkGradient;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Convert to blob and download
+        canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pluto.jpg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            document.body.innerHTML = '<h1>Pluto texture created and downloaded!</h1>';
+        }, 'image/jpeg', 0.9);
+    </script>
+</body>
+</html>

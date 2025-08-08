@@ -28,7 +28,7 @@ const Sun = () => {
     <group>
       <Sphere ref={meshRef} args={[3, 64, 64]} position={[0, 0, 0]}>
         <meshBasicMaterial 
-          color={sunTexture ? '#ffffff' : '#FFA500'}
+          color="#FFA500"
           map={sunTexture || undefined}
         />
       </Sphere>

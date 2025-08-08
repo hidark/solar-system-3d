@@ -8,6 +8,7 @@ import LoadingScreen from './components/LoadingScreen'
 import TimeControl from './components/TimeControl'
 import InfoPanel from './components/InfoPanel'
 import SearchPanel from './components/SearchPanel'
+import TextureLoadingIndicator from './components/TextureLoadingIndicator'
 import useStore from './store/useStore'
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
       <SearchPanel />
       <TimeControl />
       {selectedPlanet && <InfoPanel planet={selectedPlanet} />}
+      <TextureLoadingIndicator />
       
       <Leva 
         collapsed 

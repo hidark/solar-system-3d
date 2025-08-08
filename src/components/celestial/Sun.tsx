@@ -1,11 +1,17 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Sphere } from '@react-three/drei'
 import * as THREE from 'three'
+import { textureManager } from '../../utils/TextureManager'
 
 const Sun = () => {
   const meshRef = useRef<THREE.Mesh>(null)
   const glowRef = useRef<THREE.Mesh>(null)
+  const [sunTexture, setSunTexture] = useState<THREE.Texture | null>(null)
+  
+  useEffect(() => {
+    textureManager.loadTexture('/textures/sun.jpg').then(setSunTexture)
+  }, [])
   
   useFrame((state, delta) => {
     if (meshRef.current) {
@@ -21,7 +27,10 @@ const Sun = () => {
   return (
     <group>
       <Sphere ref={meshRef} args={[3, 64, 64]} position={[0, 0, 0]}>
-        <meshBasicMaterial color="#FFA500" />
+        <meshBasicMaterial 
+          color={sunTexture ? '#ffffff' : '#FFA500'}
+          map={sunTexture || undefined}
+        />
       </Sphere>
       
       {/* Multiple light sources for better illumination */}

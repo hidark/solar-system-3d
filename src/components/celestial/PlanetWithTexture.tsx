@@ -16,6 +16,36 @@ interface PlanetWithTextureProps {
   quality?: 'low' | 'medium' | 'high'
 }
 
+// 卫星组件
+const MoonMesh: React.FC<{
+  moon: any
+  scaledRadius: number
+  position: [number, number, number]
+}> = ({ moon, scaledRadius, position }) => {
+  const [moonTexture, setMoonTexture] = useState<THREE.Texture | null>(null)
+  
+  useEffect(() => {
+    // 加载月球纹理
+    if (moon.name === 'Moon') {
+      textureManager.loadTexture('/textures/moon.jpg').then(setMoonTexture)
+    }
+  }, [moon])
+  
+  return (
+    <mesh position={position}>
+      <sphereGeometry args={[moon.radius * scaledRadius, 16, 16]} />
+      <meshStandardMaterial 
+        color={moonTexture ? '#ffffff' : '#C0C0C0'}
+        map={moonTexture || undefined}
+        emissive="#C0C0C0"
+        emissiveIntensity={0.02}
+        roughness={0.9}
+        metalness={0.1}
+      />
+    </mesh>
+  )
+}
+
 const PlanetWithTexture: React.FC<PlanetWithTextureProps> = ({
   planetData,
   scaledDistance,
@@ -35,75 +65,92 @@ const PlanetWithTexture: React.FC<PlanetWithTextureProps> = ({
   
   const [hovered, setHovered] = useState(false)
   const [texture, setTexture] = useState<THREE.Texture | null>(null)
+  const [normalMap, setNormalMap] = useState<THREE.Texture | null>(null)
+  const [specularMap, setSpecularMap] = useState<THREE.Texture | null>(null)
 
   // 加载纹理
   useEffect(() => {
-    // 为不同行星生成不同风格的程序化纹理
-    let color1 = planetData.color
-    let color2 = planetData.color
-    let detail = 5
-    
-    switch (planetData.id) {
-      case 'mercury':
-        color1 = '#8C8C8C'
-        color2 = '#696969'
-        detail = 3
-        break
-      case 'venus':
-        color1 = '#FFC649'
-        color2 = '#FFB000'
-        detail = 4
-        break
-      case 'earth':
-        color1 = '#4A90E2'
-        color2 = '#2E7BC4'
-        detail = 8
-        break
-      case 'mars':
-        color1 = '#CD5C5C'
-        color2 = '#8B4513'
-        detail = 4
-        break
-      case 'jupiter':
-        color1 = '#DAA520'
-        color2 = '#8B7355'
-        detail = 10
-        break
-      case 'saturn':
-        color1 = '#F4E7D7'
-        color2 = '#DEB887'
-        detail = 8
-        break
-      case 'uranus':
-        color1 = '#4FD0E0'
-        color2 = '#40B0C0'
-        detail = 3
-        break
-      case 'neptune':
-        color1 = '#4B70DD'
-        color2 = '#3A5FCD'
-        detail = 4
-        break
-      case 'pluto':
-        color1 = '#9CA4AB'
-        color2 = '#7D8489'
-        detail = 2
-        break
+    // 如果有真实纹理路径，加载真实纹理
+    if (planetData.texture) {
+      textureManager.loadTexture(planetData.texture).then((loadedTexture) => {
+        setTexture(loadedTexture)
+      }).catch(() => {
+        // 如果加载失败，使用程序化纹理作为后备
+        createProceduralTexture()
+      })
+    } else {
+      // 没有纹理路径，使用程序化纹理
+      createProceduralTexture()
     }
     
-    const proceduralTexture = textureManager.createProceduralPlanetTexture(
-      color1,
-      color2,
-      detail
-    )
-    setTexture(proceduralTexture)
-
-    // 如果有纹理路径，尝试加载真实纹理（但目前我们使用程序化纹理）
-    // if (planetData.texture) {
-    //   textureManager.loadTexture(planetData.texture).then((loadedTexture) => {
-    //     setTexture(loadedTexture)
-    //   })
-    // }
+    // 加载法线贴图和高光贴图（地球）
+    if (planetData.normalMap) {
+      textureManager.loadTexture(planetData.normalMap).then(setNormalMap)
+    }
+    if (planetData.specularMap) {
+      textureManager.loadTexture(planetData.specularMap).then(setSpecularMap)
+    }
+    
+    function createProceduralTexture() {
+      let color1 = planetData.color
+      let color2 = planetData.color
+      let detail = 5
+      
+      switch (planetData.id) {
+        case 'mercury':
+          color1 = '#8C8C8C'
+          color2 = '#696969'
+          detail = 3
+          break
+        case 'venus':
+          color1 = '#FFC649'
+          color2 = '#FFB000'
+          detail = 4
+          break
+        case 'earth':
+          color1 = '#4A90E2'
+          color2 = '#2E7BC4'
+          detail = 8
+          break
+        case 'mars':
+          color1 = '#CD5C5C'
+          color2 = '#8B4513'
+          detail = 4
+          break
+        case 'jupiter':
+          color1 = '#DAA520'
+          color2 = '#8B7355'
+          detail = 10
+          break
+        case 'saturn':
+          color1 = '#F4E7D7'
+          color2 = '#DEB887'
+          detail = 8
+          break
+        case 'uranus':
+          color1 = '#4FD0E0'
+          color2 = '#40B0C0'
+          detail = 3
+          break
+        case 'neptune':
+          color1 = '#4B70DD'
+          color2 = '#3A5FCD'
+          detail = 4
+          break
+        case 'pluto':
+          color1 = '#9CA4AB'
+          color2 = '#7D8489'
+          detail = 2
+          break
+      }
+      
+      const proceduralTexture = textureManager.createProceduralPlanetTexture(
+        color1,
+        color2,
+        detail
+      )
+      setTexture(proceduralTexture)
+    }
   }, [planetData])
 
   // 计算椭圆轨道
@@ -296,14 +343,17 @@ const PlanetWithTexture: React.FC<PlanetWithTextureProps> = ({
           <meshStandardMaterial
             color={texture ? '#ffffff' : planetData.color}
             map={texture || undefined}
+            normalMap={normalMap || undefined}
+            metalnessMap={specularMap || undefined}
             emissive={planetData.color}
             emissiveIntensity={
               planetData.id === 'sun' ? 1 : 
               isSelected ? 0.2 : 
               hovered ? 0.15 : 0.08
             }
-            roughness={planetData.id === 'earth' ? 0.7 : 0.85}
-            metalness={planetData.id === 'earth' ? 0.1 : 0.05}
+            roughness={planetData.id === 'earth' ? 0.5 : 0.85}
+            metalness={planetData.id === 'earth' ? 0.3 : 0.05}
+            normalScale={new THREE.Vector2(2, 2)}
           />
         </Sphere>
 
@@ -351,16 +401,12 @@ const PlanetWithTexture: React.FC<PlanetWithTextureProps> = ({
         {planetData.moons && planetData.moons.length > 0 && (
           <group ref={moonsRef}>
             {planetData.moons.map((moon, index) => (
-              <mesh key={moon.name} position={[moon.distance * 500, 0, 0]}>
-                <sphereGeometry args={[moon.radius * scaledRadius, 16, 16]} />
-                <meshStandardMaterial 
-                  color="#C0C0C0"
-                  emissive="#C0C0C0"
-                  emissiveIntensity={0.02}
-                  roughness={0.9}
-                  metalness={0.1}
-                />
-              </mesh>
+              <MoonMesh
+                key={moon.name}
+                moon={moon}
+                scaledRadius={scaledRadius}
+                position={[moon.distance * 500, 0, 0]}
+              />
             ))}
           </group>
         )}

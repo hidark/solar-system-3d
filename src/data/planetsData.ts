@@ -11,6 +11,8 @@ export interface PlanetData {
   axialTilt: number     // 轴倾角（度）
   color: string
   texture?: string
+  normalMap?: string
+  specularMap?: string
   hasRings?: boolean
   ringData?: {
     innerRadius: number
@@ -98,6 +100,8 @@ export const planetsData: PlanetData[] = [
     axialTilt: 23.44,
     color: '#4A90E2',
     texture: '/textures/earth.jpg',
+    normalMap: '/textures/earth_normal.jpg',
+    specularMap: '/textures/earth_specular.jpg',
     moons: [
       {
         name: 'Moon',

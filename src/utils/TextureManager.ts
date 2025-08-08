@@ -4,6 +4,7 @@ class TextureManager {
   private textureLoader: THREE.TextureLoader
   private textureCache: Map<string, THREE.Texture>
   private loadingManager: THREE.LoadingManager
+  private loadedCount: number = 0
   
   constructor(onProgress?: (progress: number) => void) {
     this.textureCache = new Map()
@@ -49,6 +50,7 @@ class TextureManager {
           
           // 缓存纹理
           this.textureCache.set(path, texture)
+          this.loadedCount++
           resolve(texture)
         },
         undefined,
@@ -56,6 +58,7 @@ class TextureManager {
           console.error(`Failed to load texture: ${path}`, error)
           // 返回默认颜色纹理
           const defaultTexture = this.createDefaultTexture()
+          this.loadedCount++
           resolve(defaultTexture)
         }
       )
@@ -215,6 +218,13 @@ class TextureManager {
   }
 
   /**
+   * 获取已加载纹理数量
+   */
+  getLoadedCount(): number {
+    return this.loadedCount
+  }
+
+  /**
    * 清理缓存
    */
   dispose() {
@@ -222,6 +232,7 @@ class TextureManager {
       texture.dispose()
     })
     this.textureCache.clear()
+    this.loadedCount = 0
   }
 }
 
